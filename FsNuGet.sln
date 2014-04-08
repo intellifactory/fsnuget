@@ -1,15 +1,14 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
-Project("{4925A630-B079-445d-BCD4-3A9C94FE9307}") = "FsNuGet", "src\FsNuGet\FsNuGet.fsproj", "62F1EF00-0B8D-4697-9580-43994394C208"
+# Visual Studio Express 2013 for Web
+VisualStudioVersion = 12.0.30110.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FsNuGet", "src\FsNuGet\FsNuGet.fsproj", "{62F1EF00-0B8D-4697-9580-43994394C208}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{566FC06E-95D5-4298-962F-035C83F04893}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_", "_", "{AA6BAA77-923A-44DB-8482-39FD7BBCF49F}"
 	ProjectSection(SolutionItems) = preProject
-		tools\configure.fsx = tools\configure.fsx
-		tools\build.sh = tools\build.sh
+		build.cmd = build.cmd
 	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_", "_", "{A726E279-1874-4AA9-9BCA-0A793AFD7D69}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,11 +20,6 @@ Global
 		{62F1EF00-0B8D-4697-9580-43994394C208}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{62F1EF00-0B8D-4697-9580-43994394C208}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{62F1EF00-0B8D-4697-9580-43994394C208}.Release|Any CPU.Build.0 = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-	EndGlobalSection
-	GlobalSection(MonoDevelopProperties) = preSolution
-		StartupItem = src\FsNuGet\FsNuGet.fsproj
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
