@@ -1,4 +1,4 @@
-﻿namespace FsNuGet
+namespace FsNuGet
 
 open System
 open System.IO
@@ -7,7 +7,7 @@ open Microsoft.FSharp.Data
 open Ionic.Zip
 
 [<AutoOpen>]
-module Utility =
+module PackageUtility =
     type Service = TypeProviders.ODataService<"https://www.nuget.org/api/v2/">
     type Pkg = Service.ServiceTypes.V2FeedPackage
 
@@ -23,20 +23,13 @@ module Utility =
         | 0 -> None
         | _ -> all |> Seq.maxBy (fun p -> p.LastUpdated) |> Some
 
-    let packageUrl (pkg: Pkg) =
-        sprintf "https://www.nuget.org/api/v2/package/%s/%s" pkg.Id pkg.Version
-
-    let downloadFile (url: string) =
-        use client = new WebClient()
-        client.DownloadData(url)
-
     let unzip (data: byte[]) (dir: string) =
         use str = new MemoryStream(data)
         use zipFile = ZipFile.Read(str)
         zipFile.ExtractAll(dir)
 
-    let install pkg dir =
-        let data = downloadFile (packageUrl pkg)
+    let install (pkg: Pkg) dir =
+        let data = Utility.DownloadPackage pkg.Id pkg.Version
         unzip data dir
 
 type Package =
