@@ -4,7 +4,7 @@ open System
 open System.IO
 open System.Net
 open Microsoft.FSharp.Data
-open Ionic.Zip
+open SharpCompress
 
 [<AutoOpen>]
 module PackageUtility =
@@ -23,14 +23,9 @@ module PackageUtility =
         | 0 -> None
         | _ -> all |> Seq.maxBy (fun p -> p.LastUpdated) |> Some
 
-    let unzip (data: byte[]) (dir: string) =
-        use str = new MemoryStream(data)
-        use zipFile = ZipFile.Read(str)
-        zipFile.ExtractAll(dir)
-
     let install (pkg: Pkg) dir =
         let data = Utility.DownloadPackage pkg.Id pkg.Version
-        unzip data dir
+        Utility.UnzipToDirectory data dir
 
 type Package =
     {
