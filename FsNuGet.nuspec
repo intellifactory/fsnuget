@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>FsNuGet</id>
+    <version>0.0.1</version>
+    <title>FsNuGet</title>
+    <authors>IntelliFactory</authors>
+    <owners>IntelliFactory</owners>
+    <copyright>2008-2014 IntelliFactory</copyright>
+    <projectUrl>https://github.com/intellifactory/fsnuget/</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <licenseUrl>https://github.com/intellifactory/fsnuget/blob/master/LICENSE.md</licenseUrl>
+    <description>Grown out of frustration with `NuGet.Core.dll`, this
+    package allows basic operations such as downloading a package from
+    NuGet repository, and works on both Mono and .NET</description>
+    <summary>Minimalistic NuGet API portable to Mono</summary>
+    <tags>nuget, F#, mono</tags>
+  </metadata>
+  <files>
+    <file src="src\FsNuGet\bin\Release\FsNuGet.dll" target="lib\net40" />
+    <file src="src\FsNuGet\bin\Release\FsNuGet.xml" target="lib\net40" />
+  </files>
+</package>

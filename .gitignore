@@ -1,4 +1,5 @@
 *.suo
+build/
 bin/
 obj/
 packages/

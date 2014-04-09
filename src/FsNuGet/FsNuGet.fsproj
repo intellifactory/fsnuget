@@ -13,6 +13,7 @@
     <TargetFSharpCoreVersion>4.3.0.0</TargetFSharpCoreVersion>
     <Name>FsNuGet</Name>
     <ProductVersion>12.0.0</ProductVersion>
+    <KeyOriginatorFile>$(MSBuildThisFileDirectory)/../../tools/FsNuGet.snk</KeyOriginatorFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -50,6 +51,7 @@
   </Choose>
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
+    <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Utility.fs" />
     <Compile Include="FsNuGet.fsi" />
     <Compile Include="FsNuGet.fs" />
