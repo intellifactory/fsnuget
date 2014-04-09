@@ -7,5 +7,5 @@ artifacts:
   - path: build\*.nupkg
 deploy:
   - provider: NuGet
-    apikey:
+    api_key:
       secure: zS9xOIG0SGR60W0lHAn0/iKN6WxYKwgqwDQJpmo/NdmHnBvLtG18WvbuLvLp9nau
