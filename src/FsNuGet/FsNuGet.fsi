@@ -1,5 +1,8 @@
 ﻿namespace FsNuGet
 
+open System
+open System.IO
+
 /// Represents a NuGet package at a specific verison.
 [<Sealed>]
 type Package =
@@ -9,6 +12,12 @@ type Package =
     /// `packages/MyPkg.1.2.3` folder with the contents of the package.
     member Install : directory: string -> unit
 
+    /// Writes this package as a nupkg file in a given directory.
+    member SaveToDirectory : directory: string -> unit
+
+    /// Writes this package in nupkg format at a given path.
+    member SaveToFile : path: string -> unit
+
     /// Package identity, such as "NuGet.Core".
     member Id : string
 
@@ -17,6 +26,15 @@ type Package =
 
     /// Package version, such as "2.8.0".
     member Version : string
+
+    /// Reads raw bytes in nupkg format.
+    static member FromBytes : bytes: byte [] -> Package
+
+    /// Reads a given nupkg file.
+    static member FromFile : path: string -> Package
+
+    /// Reads nupkg format from a stream.
+    static member FromStream : Stream -> Package
 
     /// Like `Package.TryGetLatest`, but throws an exception on failure.
     static member GetLatest : id: string -> Package
