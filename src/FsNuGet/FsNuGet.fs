@@ -116,8 +116,8 @@ type Package =
         tryGetLatest id source
         |> Option.map (fun pkg -> { Data = pkg })
 
-    static member GetLatest(id) =
-        match Package.TryGetLatest(id) with
+    static member GetLatest(id, ?source) =
+        match Package.TryGetLatest(id, ?source = source) with
         | Some pkg -> pkg
         | None -> failwithf "Failed to find package by id %s" id
 

@@ -41,7 +41,7 @@ type Package =
     static member FromStream : Stream -> Package
 
     /// Like `Package.TryGetLatest`, but throws an exception on failure.
-    static member GetLatest : id: string -> Package
+    static member GetLatest : id: string * ?source: PackageSource -> Package
 
     /// Attempts to find the latest version of a package by id.
     /// When `source` is not specified, searches the official NuGet repository.
