@@ -34,6 +34,13 @@ module PackageUtility =
             Version = pkg.Version
         }
 
+    let comparableVersion (v: string) =
+        let v, prerel =
+            match v.IndexOf '-' with
+            | -1 -> v, string Char.MaxValue
+            | n -> v.[..n-1], v.[n+1..]
+        v.Split('.') |> Array.map int, prerel
+
     let tryGetLatestOData id url =
         let all =
             query {
@@ -44,7 +51,11 @@ module PackageUtility =
             |> Seq.toArray
         match all.Length with
         | 0 -> None
-        | _ -> all |> Seq.maxBy (fun p -> p.LastUpdated) |> dataFromPkg |> Some
+        | _ ->
+            all
+            |> Seq.maxBy (fun p -> comparableVersion p.NormalizedVersion)
+            |> dataFromPkg
+            |> Some
 
     let tryGetLatestFileSystem id path =
         let allFound =
@@ -62,7 +73,7 @@ module PackageUtility =
         match allFound with
         | [] -> None
         | l ->
-            let version, path = List.maxBy (snd >> File.GetLastWriteTimeUtc) l
+            let version, path = List.maxBy (fst >> comparableVersion) l
             Some {
                 Bytes = File.ReadAllBytes(path)
                 Id = id
