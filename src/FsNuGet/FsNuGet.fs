@@ -15,9 +15,16 @@ type PackageData =
         Version : string
     }
 
+type PackageSource =
+    | Online of url: string
+    | FileSystem of path: string
+
 [<AutoOpen>]
 module PackageUtility =
-    type Service = TypeProviders.ODataService<"https://www.nuget.org/api/v2/">
+    [<Literal>]
+    let DefaultSourceUrl = "https://www.nuget.org/api/v2/"
+
+    type Service = TypeProviders.ODataService<DefaultSourceUrl>
     type Pkg = Service.ServiceTypes.V2FeedPackage
 
     let dataFromPkg (pkg: Pkg) =
@@ -27,10 +34,10 @@ module PackageUtility =
             Version = pkg.Version
         }
 
-    let tryGetLatest id =
+    let tryGetLatestOData id url =
         let all =
             query {
-                for p in Service.GetDataContext().Packages do
+                for p in Service.GetDataContext(url).Packages do
                 where (p.Id = id)
                 select p
             }
@@ -38,6 +45,34 @@ module PackageUtility =
         match all.Length with
         | 0 -> None
         | _ -> all |> Seq.maxBy (fun p -> p.LastUpdated) |> dataFromPkg |> Some
+
+    let tryGetLatestFileSystem id path =
+        let allFound =
+            Directory.EnumerateFiles(path, id + ".*.nupkg")
+            |> Seq.choose (fun path ->
+                let version = Path.GetFileNameWithoutExtension(path).[id.Length + 1 ..]
+                if not (Char.IsDigit version.[0]) then
+                    // Searching for e.g. "WebSharper" we got e.g. "WebSharper.Owin.2.5.1.1.nupkg"
+                    // so `version` above is "Owin.2.5.1.1"; discard
+                    None
+                else
+                    Some (version, path)
+            )
+            |> List.ofSeq
+        match allFound with
+        | [] -> None
+        | l ->
+            let version, path = List.maxBy (snd >> File.GetLastWriteTimeUtc) l
+            Some {
+                Bytes = File.ReadAllBytes(path)
+                Id = id
+                Version = version
+            }
+
+    let tryGetLatest id source =
+        match source with
+        | Online url -> tryGetLatestOData id (Uri url)
+        | FileSystem path -> tryGetLatestFileSystem id path
 
     let install data dir =
         Utility.UnzipToDirectory Utility.IsInternalEntry data.Bytes dir
@@ -76,8 +111,9 @@ type Package =
         File.ReadAllBytes(path)
         |> Package.FromBytes
 
-    static member TryGetLatest(id) =
-        tryGetLatest id
+    static member TryGetLatest(id, ?source) =
+        let source = defaultArg source (Online DefaultSourceUrl)
+        tryGetLatest id source
         |> Option.map (fun pkg -> { Data = pkg })
 
     static member GetLatest(id) =

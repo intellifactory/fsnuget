@@ -3,6 +3,10 @@
 open System
 open System.IO
 
+type PackageSource =
+    | Online of url: string
+    | FileSystem of path: string
+
 /// Represents a NuGet package at a specific verison.
 [<Sealed>]
 type Package =
@@ -40,5 +44,5 @@ type Package =
     static member GetLatest : id: string -> Package
 
     /// Attempts to find the latest version of a package by id.
-    /// Searches the official NuGet repository only.
-    static member TryGetLatest : id: string -> option<Package>
+    /// When `source` is not specified, searches the official NuGet repository.
+    static member TryGetLatest : id: string * ?source: PackageSource -> option<Package>
