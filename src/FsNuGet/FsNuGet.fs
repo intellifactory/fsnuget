@@ -139,3 +139,6 @@ type Package =
     member p.SaveToDirectory(dir) =
         p.SaveToFile(Path.Combine(dir, p.Text + ".nupkg"))
 
+    member p.DataStream =
+        new MemoryStream(p.Data.Bytes) :> Stream
+

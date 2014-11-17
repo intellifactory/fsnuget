@@ -22,6 +22,9 @@ type Package =
     /// Writes this package in nupkg format at a given path.
     member SaveToFile : path: string -> unit
 
+    /// Returns the package data in nupkg format as a stream.
+    member DataStream : Stream
+
     /// Package identity, such as "NuGet.Core".
     member Id : string
 
