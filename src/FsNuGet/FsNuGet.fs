@@ -54,12 +54,11 @@ module PackageUtility =
         | _ ->
             all
             |> Seq.maxBy (fun p -> comparableVersion p.NormalizedVersion)
-            |> dataFromPkg
             |> Some
 
     let tryGetOData id version url =
         query { for p in Service.GetDataContext(url).Packages do
-                where (p.Id = id && p.Version = version)
+                where (p.Id = id && p.NormalizedVersion = version)
                 headOrDefault }
         |> function
             | null -> None
@@ -81,12 +80,7 @@ module PackageUtility =
         match allFound with
         | [] -> None
         | l ->
-            let version, path = List.maxBy (fst >> comparableVersion) l
-            Some {
-                Bytes = File.ReadAllBytes(path)
-                Id = id
-                Version = version
-            }
+            Some (List.maxBy (fst >> comparableVersion) l)
 
     let tryGetFileSystem id version path =
         let path = Path.Combine(path, sprintf "%s.%s.nupkg" id version)
@@ -100,13 +94,31 @@ module PackageUtility =
 
     let tryGetLatest id source =
         match source with
-        | Online url -> tryGetLatestOData id (Uri url)
-        | FileSystem path -> tryGetLatestFileSystem id path
+        | Online url ->
+            tryGetLatestOData id (Uri url)
+            |> Option.map dataFromPkg
+        | FileSystem path ->
+            tryGetLatestFileSystem id path
+            |> Option.map (fun (version, path) ->
+                {
+                    Bytes = File.ReadAllBytes(path)
+                    Id = id
+                    Version = version
+                })
 
     let tryGet id version source =
         match source with
         | Online url -> tryGetOData id version (Uri url)
         | FileSystem path -> tryGetFileSystem id version path
+
+    let tryFindLatestVersion id source =
+        match source with
+        | Online url ->
+            tryGetLatestOData id (Uri url)
+            |> Option.map (fun p -> p.NormalizedVersion)
+        | FileSystem path ->
+            tryGetLatestFileSystem id path
+            |> Option.map fst
 
     let install data dir =
         Utility.UnzipToDirectory Utility.IsInternalEntry data.Bytes dir
@@ -162,6 +174,15 @@ type Package =
 
     static member GetLatest(id, ?source) =
         match Package.TryGetLatest(id, ?source = source) with
+        | Some pkg -> pkg
+        | None -> failwithf "Failed to find package by id %s" id
+
+    static member TryFindLatestVersion(id, ?source) =
+        let source = defaultArg source (Online DefaultSourceUrl)
+        tryFindLatestVersion id source
+
+    static member FindLatestVersion(id, ?source) =
+        match Package.TryFindLatestVersion(id, ?source = source) with
         | Some pkg -> pkg
         | None -> failwithf "Failed to find package by id %s" id
 

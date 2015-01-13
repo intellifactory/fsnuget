@@ -46,13 +46,20 @@ type Package =
     /// Like `Package.TryGetAtVersion`, but throws an exception on failure.
     static member GetAtVersion : id: string * version: string * ?source: PackageSource -> Package
 
-    /// Attempts to find the package with the given id and version.
+    /// Attempts to find and retrieve the package with the given id and version.
     /// When `source` is not specified, searches the official NuGet repository.
     static member TryGetAtVersion : id: string * version: string * ?source: PackageSource -> option<Package>
 
     /// Like `Package.TryGetLatest`, but throws an exception on failure.
     static member GetLatest : id: string * ?source: PackageSource -> Package
 
-    /// Attempts to find the latest version of a package by id.
+    /// Attempts to find and retrieve the latest version of a package by id.
     /// When `source` is not specified, searches the official NuGet repository.
     static member TryGetLatest : id: string * ?source: PackageSource -> option<Package>
+
+    /// Like `Package.FindLatestVersion`, but throws an exception on failure.
+    static member FindLatestVersion : id: string * ?source: PackageSource -> string
+
+    /// Attempts to find what is the latest version of a package by id.
+    /// When `source` is not specified, searches the official NuGet repository.
+    static member TryFindLatestVersion : id: string * ?source: PackageSource -> option<string>
