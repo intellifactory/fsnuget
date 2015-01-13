@@ -43,6 +43,13 @@ type Package =
     /// Reads nupkg format from a stream.
     static member FromStream : Stream -> Package
 
+    /// Like `Package.TryGetAtVersion`, but throws an exception on failure.
+    static member GetAtVersion : id: string * version: string * ?source: PackageSource -> Package
+
+    /// Attempts to find the package with the given id and version.
+    /// When `source` is not specified, searches the official NuGet repository.
+    static member TryGetAtVersion : id: string * version: string * ?source: PackageSource -> option<Package>
+
     /// Like `Package.TryGetLatest`, but throws an exception on failure.
     static member GetLatest : id: string * ?source: PackageSource -> Package
 

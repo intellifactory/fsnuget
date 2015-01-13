@@ -57,6 +57,14 @@ module PackageUtility =
             |> dataFromPkg
             |> Some
 
+    let tryGetOData id version url =
+        query { for p in Service.GetDataContext(url).Packages do
+                where (p.Id = id && p.Version = version)
+                headOrDefault }
+        |> function
+            | null -> None
+            | p -> Some (dataFromPkg p)
+
     let tryGetLatestFileSystem id path =
         let allFound =
             Directory.EnumerateFiles(path, id + ".*.nupkg")
@@ -80,10 +88,25 @@ module PackageUtility =
                 Version = version
             }
 
+    let tryGetFileSystem id version path =
+        let path = Path.Combine(path, sprintf "%s.%s.nupkg" id version)
+        if File.Exists(path) then
+            Some {
+                Bytes = File.ReadAllBytes(path)
+                Id = id
+                Version = version
+            }
+        else None
+
     let tryGetLatest id source =
         match source with
         | Online url -> tryGetLatestOData id (Uri url)
         | FileSystem path -> tryGetLatestFileSystem id path
+
+    let tryGet id version source =
+        match source with
+        | Online url -> tryGetOData id version (Uri url)
+        | FileSystem path -> tryGetFileSystem id version path
 
     let install data dir =
         Utility.UnzipToDirectory Utility.IsInternalEntry data.Bytes dir
@@ -121,6 +144,16 @@ type Package =
     static member FromFile(path: string) =
         File.ReadAllBytes(path)
         |> Package.FromBytes
+
+    static member TryGetAtVersion(id, version, ?source) =
+        let source = defaultArg source (Online DefaultSourceUrl)
+        tryGet id version source
+        |> Option.map (fun pkg -> { Data = pkg })
+
+    static member GetAtVersion(id, version, ?source) =
+        match Package.TryGetAtVersion(id, version, ?source = source) with
+        | Some pkg -> pkg
+        | None -> failwithf "Failed to find package by id %s, version %s" id version
 
     static member TryGetLatest(id, ?source) =
         let source = defaultArg source (Online DefaultSourceUrl)
