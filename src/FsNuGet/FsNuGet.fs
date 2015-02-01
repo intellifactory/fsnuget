@@ -120,6 +120,23 @@ module PackageUtility =
             tryGetLatestFileSystem id path
             |> Option.map fst
 
+    let exists id source =
+        match source with
+        | Online url ->
+            query { for p in Service.GetDataContext(Uri url).Packages do
+                    exists (p.Id = id) }
+        | FileSystem path ->
+            tryGetLatestFileSystem id path
+            |> Option.isSome
+
+    let existsVersion id ver source =
+        match source with
+        | Online url ->
+            query { for p in Service.GetDataContext(Uri url).Packages do
+                    exists (p.Id = id && p.Version = ver) }
+        | FileSystem path ->
+            File.Exists(Path.Combine(path, sprintf "%s.%s.nupkg" id ver))
+
     let install data dir =
         Utility.UnzipToDirectory Utility.IsInternalEntry data.Bytes dir
 
@@ -185,6 +202,14 @@ type Package =
         match Package.TryFindLatestVersion(id, ?source = source) with
         | Some pkg -> pkg
         | None -> failwithf "Failed to find package by id %s" id
+
+    static member Exists(id, ?source) =
+        let source = defaultArg source (Online DefaultSourceUrl)
+        exists id source
+
+    static member ExistsAtVersion(id, version, ?source) =
+        let source = defaultArg source (Online DefaultSourceUrl)
+        existsVersion id version source
 
     member p.SaveToFile(file) =
         Utility.EnsureDirExistsFor file

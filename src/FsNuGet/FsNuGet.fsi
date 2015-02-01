@@ -63,3 +63,9 @@ type Package =
     /// Attempts to find what is the latest version of a package by id.
     /// When `source` is not specified, searches the official NuGet repository.
     static member TryFindLatestVersion : id: string * ?source: PackageSource -> option<string>
+
+    /// Finds whether the given package exists at the given version.
+    static member Exists : id: string * ?source: PackageSource -> bool
+
+    /// Finds whether the given package exists at the given version.
+    static member ExistsAtVersion : id: string * version: string * ?source: PackageSource -> bool
