@@ -75,10 +75,15 @@ module internal Utility =
         let doc =
             ReadTextStream x
             |> XDocument.Parse
-        let ns = "http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd"
+        let ns =
+            [
+                "http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd"
+                "http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd"
+            ]
         let read name =
             let el =
-                doc.Descendants(XName.Get(name, ns))
+                ns
+                |> Seq.collect (fun ns -> doc.Descendants(XName.Get(name, ns)))
                 |> Seq.head
             el.Value
         { Id = read "id"; Version = read "version" }
