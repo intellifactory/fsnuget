@@ -24,7 +24,7 @@ module PackageUtility =
     [<Literal>]
     let DefaultSourceUrl = "https://www.nuget.org/api/v2/"
 
-    type Service = TypeProviders.ODataService<DefaultSourceUrl>
+    type Service = TypeProviders.ODataService<DefaultSourceUrl, LocalSchemaFile = "schema.csdl">
     type Pkg = Service.ServiceTypes.V2FeedPackage
 
     let dataFromPkg (pkg: Pkg) =
@@ -66,7 +66,7 @@ module PackageUtility =
 
     let tryGetLatestFileSystem id path =
         let allFound =
-            Directory.EnumerateFiles(path, id + ".*.nupkg")
+            Directory.EnumerateFiles(path, id + ".*.nupkg", SearchOption.AllDirectories)
             |> Seq.choose (fun path ->
                 let version = Path.GetFileNameWithoutExtension(path).[id.Length + 1 ..]
                 if not (Char.IsDigit version.[0]) then
@@ -83,14 +83,15 @@ module PackageUtility =
             Some (List.maxBy (fst >> comparableVersion) l)
 
     let tryGetFileSystem id version path =
-        let path = Path.Combine(path, sprintf "%s.%s.nupkg" id version)
-        if File.Exists(path) then
+        let paths = Directory.GetFiles(path, sprintf "%s.%s.nupkg" id version, SearchOption.AllDirectories)
+        match List.ofArray paths with
+        | [path] ->
             Some {
                 Bytes = File.ReadAllBytes(path)
                 Id = id
                 Version = version
             }
-        else None
+        | _ -> None
 
     let tryGetLatest id source =
         match source with
@@ -135,7 +136,8 @@ module PackageUtility =
             query { for p in Service.GetDataContext(Uri url).Packages do
                     exists (p.Id = id && p.Version = ver) }
         | FileSystem path ->
-            File.Exists(Path.Combine(path, sprintf "%s.%s.nupkg" id ver))
+            tryGetFileSystem id ver path 
+            |> Option.isSome
 
     let install data dir =
         Utility.UnzipToDirectory Utility.IsInternalEntry data.Bytes dir
